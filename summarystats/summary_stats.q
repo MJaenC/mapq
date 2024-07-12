@@ -7,6 +7,11 @@
     :@[;`sym;`p#] `sym xasc 0!update volume wavg price, sum volume by date, sym, listing_mkt, time from tt where event=`Trade, not trade_correction="Y", not trade_stat=`C;  /eval (!;0;(!;`tt;enlist enlist((/:;in);enlist`Trade;`event);`date`sym`listing_mkt`time!`date`sym`listing_mkt`time;`price`volume`total_value!((wavg;`volume;`price);(sum;`volume);(prd;(enlist;`price;`volume)))))
     }; 
 
+.mapq.summarystats.filterorders:{[OO]
+// Order-based filters
+    OO: eval (!;0;(?;`getData.edwO;enlist((in;`event;enlist`Order);(>;`price;0);(>;`volume;0));0b;()));
+    : @[;`instrumentID;`p#] `instrumentID xasc OO;
+    }; 
 
 .mapq.summarystats.filterquotes:{[QQ]
 // Quote-based filters
