@@ -95,3 +95,48 @@ while[i<count[calendar];
     //Iterate again
     i+: 1;
     ];
+
+
+\\Constant Values Order data
+input.symbols :`;
+input.startTime : 09:30:00.000;
+input.endTime :  16:00:00.000 
+input.columnsO: `eventTimestamp`instrumentID`listing_mkt`event`b_po`b_type`b_sme`s_po`s_type`s_sme`price`volume; 
+input.applyFilter : ();
+
+order_results: flip `po`instrumentID`listing_mkt`date`ac_type`sme`bid_depth`ask_depth !(`int$();`symbol$();`symbol$();`date$();`symbol$();`char$();`float$();`float$());
+
+.mapq.summarystats.filterorders:{[OO]
+// Order-based filters
+    OO: eval (!;0;(?;`getData.edwO;enlist((in;`event;enlist`Order);(>;`price;0);(>;`volume;0));0b;()));
+    : @[;`instrumentID;`p#] `instrumentID xasc OO;
+    }; 
+
+//Inititate while loop to calculate Ask_Depth and Bid_Depth by Broker
+i:0;
+while[i<count[calendar];
+    input.startDate: last calendar[i];
+    input.endDate: first calendar[i];
+    
+    //Get Order Data
+    getData.edwO: `..getTicks[`symList`assetClass`dataType`startDate`endDate`startTime`endTime`idType`columns`applyFilter!(input.symbols;`equity;`order;input.startDate;input.endDate;input.startTime;input.endTime;`instrumentID;input.columnsO;input.applyFilter)]; /13.6m 
+
+    //Filter Order Data
+    orders: .mapq.summarystats.filterorders getData.edwO;
+    
+    {[t] ![t;enlist(>;`i;-1);0b;`$()]} each `getData.edwO; /delete all records for tables in memory
+
+    
+    //Join Summary Stats and Append Results to empty table
+    order_results,: mm_orders orders
+    
+    
+    //Sleep 5 minutes to bypass timeout
+    {t:.z.p;while[.z.p<t+x]} 00:05:00;  
+    
+    {[t] ![t;enlist(>;`i;-1);0b;`$()]} each `orders; /delete all records for tables in memory
+
+    //Iterate again
+    i+: 1;
+    ];
+
