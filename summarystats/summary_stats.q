@@ -110,3 +110,10 @@
         select realized_vol: sqrt avg ((next price) - price) xexp 2 by input.time.window xbar time.minute, date, mkt, sym, listing_mkt from input.trades where time within(input.start.time;input.end.time);
         select realized_vol: sqrt avg ((next price) - price) xexp 2 by input.time.window xbar time.minute, date, sym, listing_mkt from input.trades where time within(input.start.time;input.end.time)];
     };
+
+//Intraday Bid Depth and Ask Depth by Broker from Order data
+mm_orders:{[t] 
+    bids: select bid_depth: sum volume*price by po: b_po, instrumentID, listing_mkt, date: `date$eventTimestamp, ac_type: b_type, sme: b_sme from orders where b_po<>0,b_type<>`;
+    asks: select ask_depth: sum volume*price by po: s_po, instrumentID, listing_mkt, date: `date$eventTimestamp, ac_type: s_type, sme: s_sme from orders where s_po<>0,s_type<>`;
+    :0!(uj/)(bids;asks);
+    };
