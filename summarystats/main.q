@@ -100,17 +100,11 @@ while[i<count[calendar];
 \\Constant Values Order data
 input.symbols :`;
 input.startTime : 09:30:00.000;
-input.endTime :  16:00:00.000 
+input.endTime :  16:00:00.000; 
 input.columnsO: `eventTimestamp`instrumentID`listing_mkt`event`b_po`b_type`b_sme`s_po`s_type`s_sme`price`volume; 
 input.applyFilter : ();
 
 order_results: flip `po`instrumentID`listing_mkt`date`ac_type`sme`bid_depth`ask_depth !(`int$();`symbol$();`symbol$();`date$();`symbol$();`char$();`float$();`float$());
-
-.mapq.summarystats.filterorders:{[OO]
-// Order-based filters
-    OO: eval (!;0;(?;`getData.edwO;enlist((in;`event;enlist`Order);(>;`price;0);(>;`volume;0));0b;()));
-    : @[;`instrumentID;`p#] `instrumentID xasc OO;
-    }; 
 
 //Inititate while loop to calculate Ask_Depth and Bid_Depth by Broker
 i:0;
@@ -128,7 +122,7 @@ while[i<count[calendar];
 
     
     //Join Summary Stats and Append Results to empty table
-    order_results,: mm_orders orders
+    order_results,: mm_orders[orders;input.startTime; input.endTime];
     
     
     //Sleep 5 minutes to bypass timeout
@@ -139,4 +133,3 @@ while[i<count[calendar];
     //Iterate again
     i+: 1;
     ];
-
