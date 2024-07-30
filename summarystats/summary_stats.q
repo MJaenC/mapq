@@ -1,10 +1,8 @@
 
 //Intraday Liquidity Metrics
-
 .mapq.summarystats.filtertrades:{[tt]
 // Trade-based filters
-    tt: cols[tt]xcols 0!select by date:`date$time, sym, listing_mkt, sequence_number from tt;
-    :@[;`sym;`p#] `sym xasc 0!update volume wavg price, sum volume by date, sym, listing_mkt, time from tt where event=`Trade, not trade_correction="Y", not trade_stat=`C;  /eval (!;0;(!;`tt;enlist enlist((/:;in);enlist`Trade;`event);`date`sym`listing_mkt`time!`date`sym`listing_mkt`time;`price`volume`total_value!((wavg;`volume;`price);(sum;`volume);(prd;(enlist;`price;`volume)))))
+    :@[;`sym;`p#] `sym xasc 0!update date:`date$time from tt where event=`Trade, not trade_correction="Y", not trade_stat=`C, not s_internal_cross="Y";  /eval (!;0;(!;`tt;enlist enlist((/:;in);enlist`Trade;`event);`date`sym`listing_mkt`time!`date`sym`listing_mkt`time;`price`volume`total_value!((wavg;`volume;`price);(sum;`volume);(prd;(enlist;`price;`volume)))))
     }; 
 
 .mapq.summarystats.filterorders:{[OO]
@@ -155,11 +153,4 @@
     :$[`mkt in cols input.trades; 
         select realized_vol: sqrt avg ((next price) - price) xexp 2 by date, mkt, sym, listing_mkt from input.trades where time within(input.start.time;input.end.time);
         select realized_vol: sqrt avg ((next price) - price) xexp 2 by date, sym, listing_mkt from input.trades where time within(input.start.time;input.end.time)];
-    };
-
-//Bid Depth and Ask Depth by Broker from Order data
-mm_orders:{[input.orders; input.start.time; input.end.time] 
-    bids: select bid_depth: sum volume*price by po: b_po, instrumentID, listing_mkt, date: `date$eventTimestamp, ac_type: b_type, sme: b_sme from orders where b_po<>0,b_type<>`, eventTimestamp within(input.start.time;input.end.time);
-    asks: select ask_depth: sum volume*price by po: s_po, instrumentID, listing_mkt, date: `date$eventTimestamp, ac_type: s_type, sme: s_sme from orders where s_po<>0,s_type<>`, eventTimestamp within(input.start.time;input.end.time);
-    :0!(uj/)(bids;asks);
     };
