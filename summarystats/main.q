@@ -15,7 +15,7 @@ input.columnsT : `sym`time`volume`price`total_value`listing_mkt`event`sequence_n
 input.columnsQ : `sym`listing_mkt`mkt`time`nat_best_bid`nat_best_offer`nat_best_bid_size`nat_best_offer_size`ask_price`bid_price;
 input.tableQ : `quote;
 input.tableT : `trade;
-input.applyFilter : `; 
+input.applyFilter : (); 
 
 
 
